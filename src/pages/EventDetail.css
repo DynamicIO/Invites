@@ -1,0 +1,160 @@
+.event-detail-page {
+  min-height: 100vh;
+  background: var(--gradient-main);
+  padding-bottom: 160px;
+}
+
+.error-state {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-lg);
+}
+
+/* Hero Section */
+.event-hero {
+  height: 50vh;
+  min-height: 350px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.1) 40%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+}
+
+.detail-header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  padding-top: 50px;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: var(--spacing-xl);
+  text-align: center;
+}
+
+.event-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: var(--spacing-sm);
+}
+
+.event-date {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* RSVP Section */
+.rsvp-section {
+  display: flex;
+  margin: var(--spacing-md);
+  margin-top: calc(-1 * var(--spacing-xl));
+  position: relative;
+  z-index: 20;
+  overflow: hidden;
+}
+
+.rsvp-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.rsvp-btn:not(:last-child) {
+  border-right: 1px solid var(--glass-border);
+}
+
+.rsvp-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.rsvp-btn.active {
+  color: var(--accent-blue);
+  background: rgba(10, 132, 255, 0.1);
+}
+
+/* Host Section */
+.host-section {
+  margin: var(--spacing-md);
+  padding: var(--spacing-lg);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.hosted-by {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.event-description {
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.5;
+  max-width: 300px;
+}
+
+/* Invite Footer */
+.invite-footer {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  background: linear-gradient(180deg, transparent 0%, rgba(10, 10, 15, 0.98) 30%);
+  padding: var(--spacing-xl) var(--spacing-md);
+  padding-bottom: var(--spacing-xxl);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.invite-prompt {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.invite-footer .btn {
+  width: 100%;
+  max-width: 300px;
+}
+

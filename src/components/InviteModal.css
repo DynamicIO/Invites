@@ -1,0 +1,169 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+  padding: var(--spacing-md);
+}
+
+.invite-modal {
+  width: 100%;
+  max-width: 430px;
+  max-height: 85vh;
+  overflow-y: auto;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--glass-border);
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  z-index: 10;
+}
+
+.modal-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.modal-content {
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.invite-section h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Link Copy */
+.link-copy-row {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: stretch;
+}
+
+.link-display {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 13px;
+  color: var(--text-secondary);
+  overflow: hidden;
+}
+
+.link-display span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy-btn {
+  padding: var(--spacing-sm) var(--spacing-md) !important;
+  font-size: 14px !important;
+}
+
+.copy-btn.copied {
+  background: rgba(48, 209, 88, 0.2);
+  color: var(--accent-green);
+  border-color: var(--accent-green);
+}
+
+/* Email Input */
+.email-input-row {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.email-input-row input {
+  flex: 1;
+}
+
+.email-input-row .btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  white-space: nowrap;
+}
+
+.sent-emails {
+  margin-top: var(--spacing-md);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.sent-emails p {
+  margin-bottom: var(--spacing-xs);
+}
+
+.sent-email {
+  display: inline-block;
+  background: rgba(48, 209, 88, 0.2);
+  color: var(--accent-green);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-full);
+  margin-right: var(--spacing-xs);
+  margin-bottom: var(--spacing-xs);
+  font-size: 12px;
+}
+
+/* Share Buttons */
+.share-buttons {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.share-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+.share-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.share-btn.message {
+  color: var(--accent-green);
+}
+
+.share-btn.message:hover {
+  background: rgba(48, 209, 88, 0.15);
+}
+
+.share-btn.whatsapp {
+  color: #25D366;
+}
+
+.share-btn.whatsapp:hover {
+  background: rgba(37, 211, 102, 0.15);
+}
+
