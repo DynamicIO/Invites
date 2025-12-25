@@ -71,3 +71,17 @@
   background: rgba(10, 132, 255, 0.3);
 }
 
+.photo-placeholder.uploading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.photo-placeholder .spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+

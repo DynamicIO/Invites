@@ -9,8 +9,13 @@ import './App.css';
 
 function App() {
   const [events, setEvents] = useState(() => {
-    const saved = localStorage.getItem('invites-events');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('invites-events');
+      return saved ? JSON.parse(saved) : [];
+    } catch (error) {
+      console.error('Error loading events:', error);
+      return [];
+    }
   });
   
   const [currentUser] = useState({
@@ -20,7 +25,25 @@ function App() {
   });
 
   useEffect(() => {
-    localStorage.setItem('invites-events', JSON.stringify(events));
+    try {
+      localStorage.setItem('invites-events', JSON.stringify(events));
+    } catch (error) {
+      console.error('Error saving events to localStorage:', error);
+      // If localStorage is full, try to save without images as fallback
+      if (error.name === 'QuotaExceededError' || error.code === 22) {
+        try {
+          const eventsWithoutImages = events.map(e => ({
+            ...e,
+            backgroundImage: null,
+            photos: []
+          }));
+          localStorage.setItem('invites-events', JSON.stringify(eventsWithoutImages));
+          alert('Storage limit reached. Images were not saved. Consider clearing old events.');
+        } catch (fallbackError) {
+          console.error('Fallback save also failed:', fallbackError);
+        }
+      }
+    }
   }, [events]);
 
   const addEvent = (event) => {

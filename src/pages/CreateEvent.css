@@ -67,6 +67,15 @@
   background: rgba(120, 120, 120, 0.7);
 }
 
+.upload-btn .spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .event-form-container {
   position: relative;
   z-index: 10;

@@ -1,7 +1,40 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, CalendarPlus, MapPin, Image } from 'lucide-react';
+import { X, CalendarPlus, MapPin, Image, Loader } from 'lucide-react';
 import './CreateEvent.css';
+
+// Compress and resize image to reduce storage size
+const compressImage = (file, maxWidth = 800, quality = 0.7) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        // Resize if larger than maxWidth
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Convert to compressed JPEG
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(compressedDataUrl);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+};
 
 function CreateEvent({ addEvent, currentUser }) {
   const navigate = useNavigate();
@@ -17,20 +50,27 @@ function CreateEvent({ addEvent, currentUser }) {
   });
   
   const [previewMode, setPreviewMode] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, backgroundImage: reader.result }));
-      };
-      reader.readAsDataURL(file);
+      setIsUploading(true);
+      try {
+        // Compress the image to reduce size for localStorage
+        const compressedImage = await compressImage(file, 800, 0.7);
+        setFormData(prev => ({ ...prev, backgroundImage: compressedImage }));
+      } catch (error) {
+        console.error('Error compressing image:', error);
+        alert('Error processing image. Please try a smaller image.');
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
@@ -96,12 +136,22 @@ function CreateEvent({ addEvent, currentUser }) {
       {/* Background upload button */}
       <div className="background-upload">
         <label className="upload-btn">
-          <Image size={16} />
-          Edit Background
+          {isUploading ? (
+            <>
+              <Loader size={16} className="spinning" />
+              Uploading...
+            </>
+          ) : (
+            <>
+              <Image size={16} />
+              Edit Background
+            </>
+          )}
           <input 
             type="file" 
             accept="image/*" 
             onChange={handleImageUpload}
+            disabled={isUploading}
             hidden
           />
         </label>
