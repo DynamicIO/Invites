@@ -201,6 +201,8 @@ function App() {
                 events={events} 
                 updateEvent={updateEvent}
                 currentUser={currentUser}
+                user={user}
+                showAuthModal={() => setShowAuthModal(true)}
               />
             } 
           />

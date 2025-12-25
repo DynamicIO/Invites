@@ -8,7 +8,7 @@ import { getEvent, updateEventInDb } from '../firebase';
 import { getGuestId } from '../utils/guestId';
 import './EventDetail.css';
 
-function EventDetail({ events, updateEvent, currentUser }) {
+function EventDetail({ events, updateEvent, currentUser, user, showAuthModal }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -16,6 +16,7 @@ function EventDetail({ events, updateEvent, currentUser }) {
   const [fetchedEvent, setFetchedEvent] = useState(null);
   const [error, setError] = useState(null);
   const [myRsvp, setMyRsvp] = useState(null);
+  const [pendingRsvp, setPendingRsvp] = useState(null); // Store pending RSVP if user needs to sign in
   
   // Get unique guest ID for this device
   const guestId = getGuestId();
@@ -62,8 +63,22 @@ function EventDetail({ events, updateEvent, currentUser }) {
   const event = localEvent || fetchedEvent;
 
   const handleRsvp = async (status) => {
+    // Check if user is signed in
+    if (!user) {
+      // Store the pending RSVP choice and show auth modal
+      setPendingRsvp(status);
+      showAuthModal();
+      return;
+    }
+    
+    // Proceed with RSVP
+    submitRsvp(status);
+  };
+  
+  const submitRsvp = async (status) => {
     // Update local state immediately
     setMyRsvp(status);
+    setPendingRsvp(null);
     
     // Build updated rsvps object
     const currentRsvps = event.rsvps || {};
@@ -94,6 +109,13 @@ function EventDetail({ events, updateEvent, currentUser }) {
       }
     }
   };
+  
+  // If user signs in and had a pending RSVP, submit it
+  useEffect(() => {
+    if (user && pendingRsvp) {
+      submitRsvp(pendingRsvp);
+    }
+  }, [user, pendingRsvp]);
 
   const handleUpdateEvent = async (eventId, updates) => {
     if (localEvent) {
