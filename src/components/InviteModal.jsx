@@ -40,19 +40,40 @@ function InviteModal({ event, onClose }) {
   };
 
   const handleMessageInvite = () => {
-    const text = encodeURIComponent(
+    const messageText = 
       `You're invited to "${event.title}"! 🎉\n\n` +
       `📅 ${event.startDate} - ${event.endDate}\n` +
       `📍 ${event.location || 'Location TBD'}\n\n` +
-      `RSVP here: ${eventUrl}`
-    );
+      `RSVP here: ${eventUrl}`;
     
-    // Try SMS on mobile, fallback to copying
-    if (/Android|iPhone/i.test(navigator.userAgent)) {
-      window.open(`sms:?body=${text}`);
+    const encodedText = encodeURIComponent(messageText);
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    
+    // Check if iOS (iPhone, iPad, iPod)
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+    // Check if Android
+    const isAndroid = /android/i.test(userAgent);
+    
+    if (isIOS) {
+      // iOS uses sms:&body= format (note the & instead of ?)
+      window.location.href = `sms:&body=${encodedText}`;
+    } else if (isAndroid) {
+      // Android uses sms:?body= format
+      window.location.href = `sms:?body=${encodedText}`;
     } else {
-      navigator.clipboard.writeText(decodeURIComponent(text));
-      alert('Invite message copied to clipboard!');
+      // Desktop fallback - copy to clipboard
+      navigator.clipboard.writeText(messageText).then(() => {
+        alert('Invite message copied to clipboard!');
+      }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = messageText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('Invite message copied to clipboard!');
+      });
     }
   };
 
@@ -64,7 +85,8 @@ function InviteModal({ event, onClose }) {
       `RSVP here: ${eventUrl}`
     );
     
-    window.open(`https://wa.me/?text=${text}`);
+    // Use location.href for better mobile compatibility
+    window.location.href = `https://wa.me/?text=${text}`;
   };
 
   return (
