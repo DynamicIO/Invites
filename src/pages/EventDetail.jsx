@@ -4,6 +4,7 @@ import { ChevronLeft, Check, X, HelpCircle, Share2, Loader, Pencil, Sparkles } f
 import SharedAlbum from '../components/SharedAlbum';
 import SharedPlaylist from '../components/SharedPlaylist';
 import InviteModal from '../components/InviteModal';
+import GuestList from '../components/GuestList';
 import { getEvent, updateEventInDb } from '../firebase';
 import { getGuestId } from '../utils/guestId';
 import { featuredEvents } from '../data/featuredEvents';
@@ -284,6 +285,11 @@ function EventDetail({ events, updateEvent, currentUser, user, showAuthModal }) 
           <p className="event-description">{event.description}</p>
         )}
       </div>
+
+      {/* Guest List - Only visible to host */}
+      {isHost && !isFeaturedEvent && (
+        <GuestList event={event} />
+      )}
 
       {/* Shared Album */}
       <SharedAlbum event={event} updateEvent={handleUpdateEvent} />
