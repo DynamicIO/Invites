@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, CalendarPlus, MapPin, Image, Loader } from 'lucide-react';
+import { X, CalendarPlus, MapPin, Image, Loader, LogIn } from 'lucide-react';
 import './CreateEvent.css';
 
 // Compress and resize image to reduce storage size
@@ -36,7 +36,7 @@ const compressImage = (file, maxWidth = 800, quality = 0.7) => {
   });
 };
 
-function CreateEvent({ addEvent, currentUser }) {
+function CreateEvent({ addEvent, currentUser, user, showAuthModal }) {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
@@ -51,6 +51,13 @@ function CreateEvent({ addEvent, currentUser }) {
   
   const [previewMode, setPreviewMode] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Show auth modal immediately if user is not logged in
+  useEffect(() => {
+    if (!user) {
+      showAuthModal();
+    }
+  }, [user, showAuthModal]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,6 +82,12 @@ function CreateEvent({ addEvent, currentUser }) {
   };
 
   const handleSubmit = () => {
+    // Check auth before submitting
+    if (!user) {
+      showAuthModal();
+      return;
+    }
+
     if (!formData.title || !formData.startDate || !formData.endDate) {
       alert('Please fill in the required fields');
       return;
@@ -87,6 +100,7 @@ function CreateEvent({ addEvent, currentUser }) {
       hostEmail: currentUser.email,
       guests: [],
       photos: [],
+      rsvps: {},
       playlist: null,
       createdAt: new Date().toISOString()
     };
@@ -107,6 +121,28 @@ function CreateEvent({ addEvent, currentUser }) {
     
     return `${startStr} at ${formData.startTime} – ${endStr} at ${formData.endTime}`;
   };
+
+  // If not logged in, show a prompt
+  if (!user) {
+    return (
+      <div className="create-event-page not-logged-in">
+        <div className="background-overlay"></div>
+        <header className="create-header">
+          <button className="btn btn-icon btn-secondary" onClick={() => navigate('/')}>
+            <X size={20} />
+          </button>
+        </header>
+        <div className="auth-prompt glass-card">
+          <LogIn size={48} />
+          <h2>Sign in to Create Events</h2>
+          <p>You need to be logged in to create and manage events.</p>
+          <button className="btn btn-accent" onClick={showAuthModal}>
+            Sign In / Sign Up
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 
@@ -258,4 +294,3 @@ function CreateEvent({ addEvent, currentUser }) {
 }
 
 export default CreateEvent;
-

@@ -1,5 +1,15 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc } from 'firebase/firestore';
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup
+} from 'firebase/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -15,6 +25,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
 
 // Events collection reference
 const eventsCollection = collection(db, 'events');
@@ -62,4 +74,40 @@ export const deleteEventFromDb = async (eventId) => {
   await deleteDoc(eventRef);
 };
 
-export { db };
+// Auth functions
+export const signUp = async (email, password, displayName) => {
+  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+  await updateProfile(userCredential.user, { displayName });
+  return userCredential.user;
+};
+
+export const signIn = async (email, password) => {
+  const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  return userCredential.user;
+};
+
+export const signInWithGoogle = async () => {
+  const result = await signInWithPopup(auth, googleProvider);
+  return result.user;
+};
+
+export const logOut = async () => {
+  await signOut(auth);
+};
+
+export const onAuthChange = (callback) => {
+  return onAuthStateChanged(auth, callback);
+};
+
+// Get events for a specific user
+export const getUserEvents = async (userEmail) => {
+  const q = query(eventsCollection, where("hostEmail", "==", userEmail));
+  const querySnapshot = await getDocs(q);
+  const events = [];
+  querySnapshot.forEach((doc) => {
+    events.push({ id: doc.id, ...doc.data() });
+  });
+  return events;
+};
+
+export { db, auth };

@@ -4,23 +4,50 @@ import Home from './pages/Home';
 import CreateEvent from './pages/CreateEvent';
 import EventPreview from './pages/EventPreview';
 import EventDetail from './pages/EventDetail';
-import { createEvent, getAllEvents, updateEventInDb, deleteEventFromDb } from './firebase';
+import AuthModal from './components/AuthModal';
+import { createEvent, getAllEvents, updateEventInDb, deleteEventFromDb, onAuthChange, getUserEvents } from './firebase';
 import './App.css';
 
 function App() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  const [currentUser] = useState({
-    initials: 'BA',
-    name: 'Ba aa',
-    email: 'user@example.com'
-  });
+  const [user, setUser] = useState(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authRedirect, setAuthRedirect] = useState(null); // Where to go after auth
+
+  // Listen for auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthChange((firebaseUser) => {
+      if (firebaseUser) {
+        setUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+          initials: getInitials(firebaseUser.displayName || firebaseUser.email)
+        });
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Helper to get initials from name or email
+  const getInitials = (nameOrEmail) => {
+    if (!nameOrEmail) return '??';
+    const parts = nameOrEmail.split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return nameOrEmail.substring(0, 2).toUpperCase();
+  };
 
   // Load events from Firebase on mount
   useEffect(() => {
     const loadEvents = async () => {
       try {
+        // Load all events (we can filter later if needed)
         const firebaseEvents = await getAllEvents();
         setEvents(firebaseEvents);
       } catch (error) {
@@ -38,7 +65,7 @@ function App() {
     };
     
     loadEvents();
-  }, []);
+  }, [user]); // Reload when user changes
 
   // Also save to localStorage as backup
   useEffect(() => {
@@ -96,6 +123,30 @@ function App() {
     }
   };
 
+  // Require auth for certain actions
+  const requireAuth = (callback, redirectPath = null) => {
+    if (user) {
+      callback();
+    } else {
+      setAuthRedirect(redirectPath);
+      setShowAuthModal(true);
+    }
+  };
+
+  const handleAuthSuccess = () => {
+    if (authRedirect) {
+      // Navigation will be handled by the component
+      setAuthRedirect(null);
+    }
+  };
+
+  // Current user object for components
+  const currentUser = user || {
+    initials: '??',
+    name: 'Guest',
+    email: ''
+  };
+
   if (loading) {
     return (
       <div className="app-container">
@@ -113,14 +164,24 @@ function App() {
         <Routes>
           <Route 
             path="/" 
-            element={<Home events={events} currentUser={currentUser} />} 
+            element={
+              <Home 
+                events={events} 
+                currentUser={currentUser}
+                user={user}
+                requireAuth={requireAuth}
+              />
+            } 
           />
           <Route 
             path="/create" 
             element={
               <CreateEvent 
                 addEvent={addEvent} 
-                currentUser={currentUser} 
+                currentUser={currentUser}
+                user={user}
+                requireAuth={requireAuth}
+                showAuthModal={() => setShowAuthModal(true)}
               />
             } 
           />
@@ -144,6 +205,14 @@ function App() {
             } 
           />
         </Routes>
+
+        {/* Auth Modal */}
+        {showAuthModal && (
+          <AuthModal 
+            onClose={() => setShowAuthModal(false)}
+            onSuccess={handleAuthSuccess}
+          />
+        )}
       </div>
     </Router>
   );

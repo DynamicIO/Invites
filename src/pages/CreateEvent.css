@@ -205,3 +205,44 @@
   max-width: 300px;
 }
 
+/* Auth Prompt */
+.create-event-page.not-logged-in {
+  background: linear-gradient(135deg, #2d2535 0%, #1a2030 50%, #2a2520 100%);
+}
+
+.auth-prompt {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  padding: var(--spacing-xxl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  max-width: 320px;
+  width: calc(100% - 32px);
+}
+
+.auth-prompt svg {
+  color: var(--accent-blue);
+  margin-bottom: var(--spacing-sm);
+}
+
+.auth-prompt h2 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.auth-prompt p {
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.auth-prompt .btn {
+  margin-top: var(--spacing-md);
+  width: 100%;
+}
+
