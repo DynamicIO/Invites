@@ -3,13 +3,47 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Calendar, ChevronDown, LogOut, User } from 'lucide-react';
 import EventCard from '../components/EventCard';
 import { logOut } from '../firebase';
+import { getGuestId } from '../utils/guestId';
 import './Home.css';
 
 function Home({ events, currentUser, user, requireAuth }) {
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
   
-  const upcomingEvents = events.filter(e => new Date(e.startDate) >= new Date());
+  // Get this device's guest ID
+  const guestId = getGuestId();
+  
+  // Filter events to only show:
+  // 1. Events where current user is the host (matched by email)
+  // 2. Events where current user/device is in the invitedGuests list
+  const myEvents = events.filter(event => {
+    // Check if user is the host
+    if (user && event.hostEmail === user.email) {
+      return true;
+    }
+    
+    // Check if user's email is in invited guests
+    if (user && event.invitedGuests) {
+      const isInvitedByEmail = event.invitedGuests.some(g => g.email === user.email);
+      if (isInvitedByEmail) return true;
+    }
+    
+    // Check if this device (guestId) is in invited guests
+    if (event.invitedGuests) {
+      const isInvitedByGuestId = event.invitedGuests.some(g => g.guestId === guestId);
+      if (isInvitedByGuestId) return true;
+    }
+    
+    // Check if this device has RSVP'd to the event
+    if (event.rsvps && event.rsvps[guestId]) {
+      return true;
+    }
+    
+    return false;
+  });
+  
+  // Filter for upcoming events only
+  const upcomingEvents = myEvents.filter(e => new Date(e.startDate) >= new Date());
 
   const handleLogout = async () => {
     try {

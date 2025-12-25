@@ -69,14 +69,26 @@ function EventDetail({ events, updateEvent, currentUser }) {
     const currentRsvps = event.rsvps || {};
     const updatedRsvps = { ...currentRsvps, [guestId]: status };
     
+    // Also add this guest to the invitedGuests list so they can see the event on their home
+    const currentGuests = event.invitedGuests || [];
+    const guestEntry = {
+      guestId,
+      email: currentUser.email || null,
+      addedAt: new Date().toISOString()
+    };
+    
+    // Check if guest is already in the list
+    const guestExists = currentGuests.some(g => g.guestId === guestId);
+    const updatedGuests = guestExists ? currentGuests : [...currentGuests, guestEntry];
+    
     if (localEvent) {
       // If we have it locally, use the passed updateEvent function
-      updateEvent(id, { rsvps: updatedRsvps });
+      updateEvent(id, { rsvps: updatedRsvps, invitedGuests: updatedGuests });
     } else if (fetchedEvent) {
       // If fetched from Firebase, update directly
       try {
-        await updateEventInDb(id, { rsvps: updatedRsvps });
-        setFetchedEvent(prev => ({ ...prev, rsvps: updatedRsvps }));
+        await updateEventInDb(id, { rsvps: updatedRsvps, invitedGuests: updatedGuests });
+        setFetchedEvent(prev => ({ ...prev, rsvps: updatedRsvps, invitedGuests: updatedGuests }));
       } catch (err) {
         console.error('Error updating RSVP:', err);
       }
