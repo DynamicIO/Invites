@@ -175,3 +175,21 @@
   gap: var(--spacing-md);
 }
 
+/* Section Labels */
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-xs);
+}
+
+.section-label:first-child {
+  margin-top: 0;
+}
+

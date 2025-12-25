@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Check, X, HelpCircle, Share2, Loader } from 'lucide-react';
+import { ChevronLeft, Check, X, HelpCircle, Share2, Loader, Pencil, Sparkles } from 'lucide-react';
 import SharedAlbum from '../components/SharedAlbum';
 import SharedPlaylist from '../components/SharedPlaylist';
 import InviteModal from '../components/InviteModal';
 import { getEvent, updateEventInDb } from '../firebase';
 import { getGuestId } from '../utils/guestId';
+import { featuredEvents } from '../data/featuredEvents';
 import './EventDetail.css';
 
 function EventDetail({ events, updateEvent, currentUser, user, showAuthModal }) {
@@ -21,13 +22,16 @@ function EventDetail({ events, updateEvent, currentUser, user, showAuthModal }) 
   // Get unique guest ID for this device
   const guestId = getGuestId();
   
+  // Check if this is a featured event
+  const featuredEvent = featuredEvents.find(e => e.id === id);
+  
   // First try to find event in local state
   const localEvent = events.find(e => e.id === id);
   
-  // If not found locally, fetch from Firebase
+  // If not found locally or in featured, fetch from Firebase
   useEffect(() => {
     const fetchEventFromFirebase = async () => {
-      if (!localEvent && !fetchedEvent && !error) {
+      if (!localEvent && !featuredEvent && !fetchedEvent && !error) {
         setLoading(true);
         try {
           const firebaseEvent = await getEvent(id);
@@ -50,17 +54,21 @@ function EventDetail({ events, updateEvent, currentUser, user, showAuthModal }) 
     };
     
     fetchEventFromFirebase();
-  }, [id, localEvent, fetchedEvent, error, guestId]);
+  }, [id, localEvent, featuredEvent, fetchedEvent, error, guestId]);
   
   // Set myRsvp from local event if available
   useEffect(() => {
-    if (localEvent && localEvent.rsvps && localEvent.rsvps[guestId]) {
-      setMyRsvp(localEvent.rsvps[guestId]);
+    const evt = localEvent || featuredEvent;
+    if (evt && evt.rsvps && evt.rsvps[guestId]) {
+      setMyRsvp(evt.rsvps[guestId]);
     }
-  }, [localEvent, guestId]);
+  }, [localEvent, featuredEvent, guestId]);
   
-  // Use local event if available, otherwise use fetched event
-  const event = localEvent || fetchedEvent;
+  // Use local event, featured event, or fetched event
+  const event = localEvent || featuredEvent || fetchedEvent;
+  
+  // Check if this is a featured/sample event
+  const isFeaturedEvent = !!featuredEvent;
 
   const handleRsvp = async (status) => {
     // Check if user is signed in
@@ -201,6 +209,14 @@ function EventDetail({ events, updateEvent, currentUser, user, showAuthModal }) 
       >
         <div className="hero-overlay"></div>
         
+        {/* Featured Badge */}
+        {isFeaturedEvent && (
+          <div className="featured-event-badge">
+            <Sparkles size={14} />
+            <span>Sample Event for Inspiration</span>
+          </div>
+        )}
+        
         <header className="detail-header">
           <button 
             className="btn btn-icon btn-secondary" 
@@ -208,13 +224,21 @@ function EventDetail({ events, updateEvent, currentUser, user, showAuthModal }) 
           >
             <ChevronLeft size={24} />
           </button>
-          {isHost && (
-            <button 
-              className="btn btn-icon btn-secondary"
-              onClick={() => setShowInviteModal(true)}
-            >
-              <Share2 size={20} />
-            </button>
+          {isHost && !isFeaturedEvent && (
+            <div className="header-actions-right">
+              <button 
+                className="btn btn-icon btn-secondary"
+                onClick={() => navigate(`/edit/${id}`)}
+              >
+                <Pencil size={18} />
+              </button>
+              <button 
+                className="btn btn-icon btn-secondary"
+                onClick={() => setShowInviteModal(true)}
+              >
+                <Share2 size={20} />
+              </button>
+            </div>
           )}
         </header>
 

@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Home from './pages/Home';
 import CreateEvent from './pages/CreateEvent';
+import EditEvent from './pages/EditEvent';
 import EventPreview from './pages/EventPreview';
 import EventDetail from './pages/EventDetail';
 import AuthModal from './components/AuthModal';
@@ -203,6 +204,18 @@ function App() {
                 currentUser={currentUser}
                 user={user}
                 showAuthModal={() => setShowAuthModal(true)}
+              />
+            } 
+          />
+          <Route 
+            path="/edit/:id" 
+            element={
+              <EditEvent 
+                events={events} 
+                updateEvent={updateEvent}
+                deleteEvent={deleteEvent}
+                currentUser={currentUser}
+                user={user}
               />
             } 
           />

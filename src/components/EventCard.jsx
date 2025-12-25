@@ -1,8 +1,8 @@
 import { format } from 'date-fns';
-import { MapPin } from 'lucide-react';
+import { MapPin, Sparkles } from 'lucide-react';
 import './EventCard.css';
 
-function EventCard({ event, index, onClick }) {
+function EventCard({ event, index, onClick, isFeatured }) {
   const formatDateRange = () => {
     const start = new Date(event.startDate);
     const end = new Date(event.endDate);
@@ -12,7 +12,7 @@ function EventCard({ event, index, onClick }) {
 
   return (
     <div 
-      className={`event-card animate-slide-up stagger-${index + 1}`}
+      className={`event-card animate-slide-up stagger-${index + 1} ${isFeatured ? 'featured' : ''}`}
       onClick={onClick}
       style={{
         backgroundImage: event.backgroundImage 
@@ -20,6 +20,12 @@ function EventCard({ event, index, onClick }) {
           : undefined
       }}
     >
+      {isFeatured && (
+        <div className="featured-badge">
+          <Sparkles size={12} />
+          <span>Sample Event</span>
+        </div>
+      )}
       <div className="event-card-content">
         <h3 className="event-title">{event.title}</h3>
         <p className="event-date">{formatDateRange()}</p>
@@ -39,4 +45,3 @@ function EventCard({ event, index, onClick }) {
 }
 
 export default EventCard;
-

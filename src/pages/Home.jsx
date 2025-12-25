@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Calendar, ChevronDown, LogOut, User } from 'lucide-react';
+import { Plus, Calendar, ChevronDown, LogOut, User, Sparkles } from 'lucide-react';
 import EventCard from '../components/EventCard';
 import { logOut } from '../firebase';
 import { getGuestId } from '../utils/guestId';
+import { featuredEvents } from '../data/featuredEvents';
 import './Home.css';
 
 function Home({ events, currentUser, user, requireAuth }) {
@@ -44,6 +45,9 @@ function Home({ events, currentUser, user, requireAuth }) {
   
   // Filter for upcoming events only
   const upcomingEvents = myEvents.filter(e => new Date(e.startDate) >= new Date());
+  
+  // Get featured events that are upcoming
+  const upcomingFeatured = featuredEvents.filter(e => new Date(e.startDate) >= new Date());
 
   const handleLogout = async () => {
     try {
@@ -61,6 +65,9 @@ function Home({ events, currentUser, user, requireAuth }) {
       requireAuth(() => {});
     }
   };
+
+  // Check if there's any content to show
+  const hasContent = upcomingEvents.length > 0 || upcomingFeatured.length > 0;
 
   return (
     <div className="home-page">
@@ -111,7 +118,7 @@ function Home({ events, currentUser, user, requireAuth }) {
 
       {/* Content */}
       <main className="home-content">
-        {upcomingEvents.length === 0 ? (
+        {!hasContent ? (
           <div className="empty-state glass-card animate-scale-in">
             <div className="empty-icon">
               <Calendar size={32} strokeWidth={1.5} />
@@ -127,14 +134,44 @@ function Home({ events, currentUser, user, requireAuth }) {
           </div>
         ) : (
           <div className="events-list">
-            {upcomingEvents.map((event, index) => (
-              <EventCard 
-                key={event.id} 
-                event={event} 
-                index={index}
-                onClick={() => navigate(`/event/${event.id}`)}
-              />
-            ))}
+            {/* Featured Events Section */}
+            {upcomingFeatured.length > 0 && (
+              <>
+                <div className="section-label">
+                  <Sparkles size={14} />
+                  <span>Featured</span>
+                </div>
+                {upcomingFeatured.map((event, index) => (
+                  <EventCard 
+                    key={event.id} 
+                    event={event} 
+                    index={index}
+                    isFeatured={true}
+                    onClick={() => navigate(`/event/${event.id}`)}
+                  />
+                ))}
+              </>
+            )}
+            
+            {/* User's Events Section */}
+            {upcomingEvents.length > 0 && (
+              <>
+                {upcomingFeatured.length > 0 && (
+                  <div className="section-label">
+                    <Calendar size={14} />
+                    <span>Your Events</span>
+                  </div>
+                )}
+                {upcomingEvents.map((event, index) => (
+                  <EventCard 
+                    key={event.id} 
+                    event={event} 
+                    index={index + upcomingFeatured.length}
+                    onClick={() => navigate(`/event/${event.id}`)}
+                  />
+                ))}
+              </>
+            )}
           </div>
         )}
       </main>

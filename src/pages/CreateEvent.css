@@ -246,3 +246,67 @@
   width: 100%;
 }
 
+/* Edit Event Styles */
+.delete-btn {
+  color: var(--accent-red) !important;
+}
+
+.delete-btn:hover {
+  background: rgba(255, 69, 58, 0.2) !important;
+}
+
+/* Loading and Error States */
+.create-event-page .loading-state,
+.create-event-page .error-state {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 10;
+}
+
+.create-event-page .loading-state .spinning {
+  animation: spin 1s linear infinite;
+}
+
+/* Delete Confirmation Modal */
+.delete-modal {
+  max-width: 320px;
+  width: calc(100% - 32px);
+  padding: var(--spacing-xl);
+  text-align: center;
+  margin: auto;
+}
+
+.delete-modal h3 {
+  font-size: 20px;
+  margin-bottom: var(--spacing-md);
+}
+
+.delete-modal p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: var(--spacing-xl);
+}
+
+.delete-modal-actions {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.delete-modal-actions .btn {
+  flex: 1;
+}
+
+.btn-danger {
+  background: var(--accent-red);
+  color: white;
+  border: none;
+}
+
+.btn-danger:hover {
+  background: #e03e35;
+}
+
