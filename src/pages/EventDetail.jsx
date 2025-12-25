@@ -1,36 +1,80 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Check, X, HelpCircle, Image, Music, Share2, Mail, MessageCircle } from 'lucide-react';
+import { ChevronLeft, Check, X, HelpCircle, Share2, Loader } from 'lucide-react';
 import SharedAlbum from '../components/SharedAlbum';
 import SharedPlaylist from '../components/SharedPlaylist';
 import InviteModal from '../components/InviteModal';
+import { getEvent, updateEventInDb } from '../firebase';
 import './EventDetail.css';
 
 function EventDetail({ events, updateEvent, currentUser }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [fetchedEvent, setFetchedEvent] = useState(null);
+  const [error, setError] = useState(null);
   
-  const event = events.find(e => e.id === id);
+  // First try to find event in local state
+  const localEvent = events.find(e => e.id === id);
   
-  if (!event) {
-    return (
-      <div className="event-detail-page">
-        <div className="error-state">
-          <p>Event not found</p>
-          <button className="btn btn-primary" onClick={() => navigate('/')}>
-            Go Home
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // If not found locally, fetch from Firebase
+  useEffect(() => {
+    const fetchEventFromFirebase = async () => {
+      if (!localEvent && !fetchedEvent && !error) {
+        setLoading(true);
+        try {
+          const firebaseEvent = await getEvent(id);
+          if (firebaseEvent) {
+            setFetchedEvent(firebaseEvent);
+          } else {
+            setError('Event not found');
+          }
+        } catch (err) {
+          console.error('Error fetching event:', err);
+          setError('Failed to load event');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    
+    fetchEventFromFirebase();
+  }, [id, localEvent, fetchedEvent, error]);
+  
+  // Use local event if available, otherwise use fetched event
+  const event = localEvent || fetchedEvent;
 
-  const handleRsvp = (status) => {
-    updateEvent(id, { rsvpStatus: status });
+  const handleRsvp = async (status) => {
+    if (localEvent) {
+      // If we have it locally, use the passed updateEvent function
+      updateEvent(id, { rsvpStatus: status });
+    } else if (fetchedEvent) {
+      // If fetched from Firebase, update directly
+      try {
+        await updateEventInDb(id, { rsvpStatus: status });
+        setFetchedEvent(prev => ({ ...prev, rsvpStatus: status }));
+      } catch (err) {
+        console.error('Error updating RSVP:', err);
+      }
+    }
+  };
+
+  const handleUpdateEvent = async (eventId, updates) => {
+    if (localEvent) {
+      updateEvent(eventId, updates);
+    } else if (fetchedEvent) {
+      try {
+        await updateEventInDb(eventId, updates);
+        setFetchedEvent(prev => ({ ...prev, ...updates }));
+      } catch (err) {
+        console.error('Error updating event:', err);
+      }
+    }
   };
 
   const formatDateRange = () => {
+    if (!event) return '';
     const startDate = new Date(`${event.startDate}T${event.startTime || '12:00'}`);
     const endDate = new Date(`${event.endDate}T${event.endTime || '15:00'}`);
     
@@ -44,6 +88,35 @@ function EventDetail({ events, updateEvent, currentUser }) {
     
     return `${startDateStr} at ${startTimeStr} – ${endDateStr} at ${endTimeStr}`;
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="event-detail-page">
+        <div className="loading-state">
+          <Loader size={32} className="spinning" />
+          <p>Loading event...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error || (!loading && !event)) {
+    return (
+      <div className="event-detail-page">
+        <div className="error-state">
+          <p>{error || 'Event not found'}</p>
+          <button className="btn btn-primary" onClick={() => navigate('/')}>
+            Go Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Determine if current user is the host
+  const isHost = event.hostEmail === currentUser.email;
 
   return (
     <div className="event-detail-page">
@@ -65,12 +138,14 @@ function EventDetail({ events, updateEvent, currentUser }) {
           >
             <ChevronLeft size={24} />
           </button>
-          <button 
-            className="btn btn-icon btn-secondary"
-            onClick={() => setShowInviteModal(true)}
-          >
-            <Share2 size={20} />
-          </button>
+          {isHost && (
+            <button 
+              className="btn btn-icon btn-secondary"
+              onClick={() => setShowInviteModal(true)}
+            >
+              <Share2 size={20} />
+            </button>
+          )}
         </header>
 
         <div className="hero-content">
@@ -114,21 +189,23 @@ function EventDetail({ events, updateEvent, currentUser }) {
       </div>
 
       {/* Shared Album */}
-      <SharedAlbum event={event} updateEvent={updateEvent} />
+      <SharedAlbum event={event} updateEvent={handleUpdateEvent} />
 
       {/* Shared Playlist */}
       <SharedPlaylist event={event} />
 
-      {/* Invite Button */}
-      <div className="invite-footer">
-        <p className="invite-prompt">Ready to start inviting people?</p>
-        <button 
-          className="btn btn-accent"
-          onClick={() => setShowInviteModal(true)}
-        >
-          Invite Guests
-        </button>
-      </div>
+      {/* Invite Button - Only show for host */}
+      {isHost && (
+        <div className="invite-footer">
+          <p className="invite-prompt">Ready to start inviting people?</p>
+          <button 
+            className="btn btn-accent"
+            onClick={() => setShowInviteModal(true)}
+          >
+            Invite Guests
+          </button>
+        </div>
+      )}
 
       {/* Invite Modal */}
       {showInviteModal && (
@@ -142,4 +219,3 @@ function EventDetail({ events, updateEvent, currentUser }) {
 }
 
 export default EventDetail;
-
