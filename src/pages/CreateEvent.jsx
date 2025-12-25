@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, CalendarPlus, MapPin, Image, Loader, LogIn } from 'lucide-react';
 import './CreateEvent.css';
@@ -51,13 +51,6 @@ function CreateEvent({ addEvent, currentUser, user, showAuthModal }) {
   
   const [previewMode, setPreviewMode] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-
-  // Show auth modal immediately if user is not logged in
-  useEffect(() => {
-    if (!user) {
-      showAuthModal();
-    }
-  }, [user, showAuthModal]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
