@@ -5,6 +5,7 @@ import SharedAlbum from '../components/SharedAlbum';
 import SharedPlaylist from '../components/SharedPlaylist';
 import InviteModal from '../components/InviteModal';
 import { getEvent, updateEventInDb } from '../firebase';
+import { getGuestId } from '../utils/guestId';
 import './EventDetail.css';
 
 function EventDetail({ events, updateEvent, currentUser }) {
@@ -14,6 +15,10 @@ function EventDetail({ events, updateEvent, currentUser }) {
   const [loading, setLoading] = useState(false);
   const [fetchedEvent, setFetchedEvent] = useState(null);
   const [error, setError] = useState(null);
+  const [myRsvp, setMyRsvp] = useState(null);
+  
+  // Get unique guest ID for this device
+  const guestId = getGuestId();
   
   // First try to find event in local state
   const localEvent = events.find(e => e.id === id);
@@ -27,6 +32,10 @@ function EventDetail({ events, updateEvent, currentUser }) {
           const firebaseEvent = await getEvent(id);
           if (firebaseEvent) {
             setFetchedEvent(firebaseEvent);
+            // Get this guest's RSVP from the rsvps object
+            if (firebaseEvent.rsvps && firebaseEvent.rsvps[guestId]) {
+              setMyRsvp(firebaseEvent.rsvps[guestId]);
+            }
           } else {
             setError('Event not found');
           }
@@ -40,20 +49,34 @@ function EventDetail({ events, updateEvent, currentUser }) {
     };
     
     fetchEventFromFirebase();
-  }, [id, localEvent, fetchedEvent, error]);
+  }, [id, localEvent, fetchedEvent, error, guestId]);
+  
+  // Set myRsvp from local event if available
+  useEffect(() => {
+    if (localEvent && localEvent.rsvps && localEvent.rsvps[guestId]) {
+      setMyRsvp(localEvent.rsvps[guestId]);
+    }
+  }, [localEvent, guestId]);
   
   // Use local event if available, otherwise use fetched event
   const event = localEvent || fetchedEvent;
 
   const handleRsvp = async (status) => {
+    // Update local state immediately
+    setMyRsvp(status);
+    
+    // Build updated rsvps object
+    const currentRsvps = event.rsvps || {};
+    const updatedRsvps = { ...currentRsvps, [guestId]: status };
+    
     if (localEvent) {
       // If we have it locally, use the passed updateEvent function
-      updateEvent(id, { rsvpStatus: status });
+      updateEvent(id, { rsvps: updatedRsvps });
     } else if (fetchedEvent) {
       // If fetched from Firebase, update directly
       try {
-        await updateEventInDb(id, { rsvpStatus: status });
-        setFetchedEvent(prev => ({ ...prev, rsvpStatus: status }));
+        await updateEventInDb(id, { rsvps: updatedRsvps });
+        setFetchedEvent(prev => ({ ...prev, rsvps: updatedRsvps }));
       } catch (err) {
         console.error('Error updating RSVP:', err);
       }
@@ -88,6 +111,18 @@ function EventDetail({ events, updateEvent, currentUser }) {
     
     return `${startDateStr} at ${startTimeStr} – ${endDateStr} at ${endTimeStr}`;
   };
+  
+  // Count RSVPs
+  const getRsvpCounts = () => {
+    if (!event || !event.rsvps) return { going: 0, notGoing: 0, maybe: 0 };
+    
+    const rsvps = Object.values(event.rsvps);
+    return {
+      going: rsvps.filter(r => r === 'going').length,
+      notGoing: rsvps.filter(r => r === 'not-going').length,
+      maybe: rsvps.filter(r => r === 'maybe').length
+    };
+  };
 
   // Show loading state
   if (loading) {
@@ -117,6 +152,7 @@ function EventDetail({ events, updateEvent, currentUser }) {
 
   // Determine if current user is the host
   const isHost = event.hostEmail === currentUser.email;
+  const rsvpCounts = getRsvpCounts();
 
   return (
     <div className="event-detail-page">
@@ -157,25 +193,28 @@ function EventDetail({ events, updateEvent, currentUser }) {
       {/* RSVP Section */}
       <div className="rsvp-section glass-card animate-slide-up stagger-2">
         <button 
-          className={`rsvp-btn ${event.rsvpStatus === 'going' ? 'active' : ''}`}
+          className={`rsvp-btn ${myRsvp === 'going' ? 'active' : ''}`}
           onClick={() => handleRsvp('going')}
         >
           <Check size={18} />
           <span>Going</span>
+          {rsvpCounts.going > 0 && <span className="rsvp-count">{rsvpCounts.going}</span>}
         </button>
         <button 
-          className={`rsvp-btn ${event.rsvpStatus === 'not-going' ? 'active' : ''}`}
+          className={`rsvp-btn ${myRsvp === 'not-going' ? 'active' : ''}`}
           onClick={() => handleRsvp('not-going')}
         >
           <X size={18} />
           <span>Not Going</span>
+          {rsvpCounts.notGoing > 0 && <span className="rsvp-count">{rsvpCounts.notGoing}</span>}
         </button>
         <button 
-          className={`rsvp-btn ${event.rsvpStatus === 'maybe' ? 'active' : ''}`}
+          className={`rsvp-btn ${myRsvp === 'maybe' ? 'active' : ''}`}
           onClick={() => handleRsvp('maybe')}
         >
           <HelpCircle size={18} />
           <span>Maybe</span>
+          {rsvpCounts.maybe > 0 && <span className="rsvp-count">{rsvpCounts.maybe}</span>}
         </button>
       </div>
 
