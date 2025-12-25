@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Check, X, HelpCircle, Share2, Loader, Pencil, Sparkles } from 'lucide-react';
+import { ChevronLeft, Check, X, HelpCircle, Share2, Loader, Pencil, Sparkles, MapPin } from 'lucide-react';
 import SharedAlbum from '../components/SharedAlbum';
 import SharedPlaylist from '../components/SharedPlaylist';
 import InviteModal from '../components/InviteModal';
@@ -246,6 +246,17 @@ function EventDetail({ events, updateEvent, currentUser, user, showAuthModal }) 
         <div className="hero-content">
           <h1 className="event-title animate-slide-up">{event.title}</h1>
           <p className="event-date animate-slide-up stagger-1">{formatDateRange()}</p>
+          {event.location && (
+            <a 
+              href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="event-location-link animate-slide-up stagger-2"
+            >
+              <MapPin size={16} />
+              <span>{event.location}</span>
+            </a>
+          )}
         </div>
       </div>
 

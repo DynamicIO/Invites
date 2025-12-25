@@ -101,6 +101,28 @@
   line-height: 1.5;
 }
 
+.event-location-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--spacing-sm);
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.event-location-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.event-location-link svg {
+  color: var(--accent-blue);
+}
+
 /* RSVP Section */
 .rsvp-section {
   display: flex;
