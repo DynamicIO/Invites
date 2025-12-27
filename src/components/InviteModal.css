@@ -1,13 +1,15 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: flex-end;
   justify-content: center;
   z-index: 100;
   padding: var(--spacing-md);
+  animation: backdropFadeIn 0.3s var(--ease-out-expo) forwards;
 }
 
 .invite-modal {
@@ -16,6 +18,8 @@
   max-height: 85vh;
   overflow-y: auto;
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  animation: modalSlideUp 0.5s var(--ease-out-expo) forwards;
+  transform-origin: bottom center;
 }
 
 .modal-header {
@@ -81,12 +85,22 @@
 .copy-btn {
   padding: var(--spacing-sm) var(--spacing-md) !important;
   font-size: 14px !important;
+  transition: 
+    all 0.3s var(--ease-out-expo),
+    transform 0.2s var(--ease-out-back) !important;
 }
 
 .copy-btn.copied {
   background: rgba(48, 209, 88, 0.2);
   color: var(--accent-green);
   border-color: var(--accent-green);
+  animation: copySuccess 0.4s var(--ease-out-back);
+}
+
+@keyframes copySuccess {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
 }
 
 /* Email Input */
@@ -143,12 +157,43 @@
   border-radius: var(--radius-lg);
   color: var(--text-primary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: 
+    all 0.3s var(--ease-out-expo),
+    transform 0.3s var(--ease-out-back);
   font-size: 13px;
+  position: relative;
+  overflow: hidden;
+}
+
+.share-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .share-btn:hover {
   background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.share-btn:hover::before {
+  opacity: 1;
+}
+
+.share-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.share-btn svg {
+  transition: transform 0.3s var(--ease-out-back);
+}
+
+.share-btn:hover svg {
+  transform: scale(1.15);
 }
 
 .share-btn.message {
@@ -157,6 +202,8 @@
 
 .share-btn.message:hover {
   background: rgba(48, 209, 88, 0.15);
+  border-color: rgba(48, 209, 88, 0.3);
+  box-shadow: 0 4px 20px rgba(48, 209, 88, 0.15);
 }
 
 .share-btn.whatsapp {
@@ -165,5 +212,7 @@
 
 .share-btn.whatsapp:hover {
   background: rgba(37, 211, 102, 0.15);
+  border-color: rgba(37, 211, 102, 0.3);
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.15);
 }
 

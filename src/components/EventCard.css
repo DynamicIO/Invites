@@ -6,7 +6,10 @@
   border-radius: var(--radius-xl);
   padding: var(--spacing-lg);
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: 
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
   min-height: 200px;
   display: flex;
   flex-direction: column;
@@ -18,12 +21,26 @@
 }
 
 .event-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.event-card:active {
+  transform: translateY(-2px) scale(1.005);
 }
 
 .event-card.featured {
   border: 1px solid rgba(255, 159, 10, 0.3);
+}
+
+.event-card.featured:hover {
+  border-color: rgba(255, 159, 10, 0.5);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(255, 159, 10, 0.15);
 }
 
 .featured-badge {
@@ -39,15 +56,45 @@
   border-radius: var(--radius-full);
   font-size: 11px;
   font-weight: 600;
-  z-index: 2;
+  z-index: 3;
+  box-shadow: 0 2px 8px rgba(255, 159, 10, 0.3);
 }
 
+/* Bottom gradient overlay */
 .event-card::before {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, transparent 30%, rgba(0, 0, 0, 0.8) 100%);
   z-index: 0;
+  transition: opacity 0.3s ease;
+}
+
+.event-card:hover::before {
+  background: linear-gradient(180deg, transparent 20%, rgba(0, 0, 0, 0.85) 100%);
+}
+
+/* Shine sweep effect */
+.event-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+  z-index: 2;
+  transition: left 0.6s ease;
+  pointer-events: none;
+}
+
+.event-card:hover::after {
+  left: 100%;
 }
 
 .event-card-content {

@@ -29,6 +29,11 @@ function EventDetail({ events, updateEvent, currentUser, user, showAuthModal }) 
   // First try to find event in local state
   const localEvent = events.find(e => e.id === id);
   
+  // Scroll to top when component mounts (for direct links)
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [id]);
+  
   // If not found locally or in featured, fetch from Firebase
   useEffect(() => {
     const fetchEventFromFirebase = async () => {

@@ -6,6 +6,7 @@ import EditEvent from './pages/EditEvent';
 import EventPreview from './pages/EventPreview';
 import EventDetail from './pages/EventDetail';
 import AuthModal from './components/AuthModal';
+import ScrollToTop from './components/ScrollToTop';
 import { createEvent, getAllEvents, updateEventInDb, deleteEventFromDb, onAuthChange, getUserEvents } from './firebase';
 import './App.css';
 
@@ -161,6 +162,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <div className="app-container">
         <Routes>
           <Route 
