@@ -7,6 +7,7 @@ import EventPreview from './pages/EventPreview';
 import EventDetail from './pages/EventDetail';
 import AuthModal from './components/AuthModal';
 import ScrollToTop from './components/ScrollToTop';
+import Footer from './components/Footer';
 import { createEvent, getAllEvents, updateEventInDb, deleteEventFromDb, onAuthChange, getUserEvents } from './firebase';
 import './App.css';
 
@@ -230,6 +231,9 @@ function App() {
             onSuccess={handleAuthSuccess}
           />
         )}
+
+        {/* Footer */}
+        <Footer />
       </div>
     </Router>
   );

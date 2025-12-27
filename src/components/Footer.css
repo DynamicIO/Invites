@@ -1,0 +1,36 @@
+.app-footer {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: var(--spacing-lg) var(--spacing-md);
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.footer-text {
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+
+.footer-link {
+  color: var(--accent-blue);
+  font-size: 13px;
+  text-decoration: none;
+  transition: 
+    color 0.3s var(--ease-out-expo),
+    opacity 0.3s ease;
+  display: inline-block;
+  font-weight: 500;
+}
+
+.footer-link:hover {
+  color: var(--text-primary);
+  opacity: 0.9;
+  text-decoration: underline;
+}
+
+.footer-link:active {
+  opacity: 0.7;
+}
+
