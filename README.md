@@ -4,25 +4,12 @@ A beautiful event invitation app replica inspired by Apple's Invites app. Create
 
 ## Features
 
-- 🎉 **Create Events** - Add event title, date/time, location, and custom background images
-- 📧 **Invite Guests** - Send invitations via email, SMS, or WhatsApp
-- ✅ **RSVP Tracking** - Guests can respond with Going, Not Going, or Maybe
-- 📸 **Shared Albums** - Upload and share photos from the event
-- 🎵 **Shared Playlists** - Coming soon!
-- 🌙 **Beautiful Dark UI** - Glass morphism design with smooth animations
-
-## Getting Started
-
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-```
+- **Create Events** - Add event title, date/time, location, and custom background images
+- **Invite Guests** - Send invitations via email, SMS, or WhatsApp
+- **RSVP Tracking** - Guests can respond with Going, Not Going, or Maybe
+- **Shared Albums** - Upload and share photos from the event
+- **Shared Playlists** - Coming soon!
+- **Beautiful Dark UI** - Glass morphism design with smooth animations
 
 ## Tech Stack
 
