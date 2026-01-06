@@ -44,10 +44,16 @@ function Home({ events, currentUser, user, requireAuth }) {
   });
   
   // Filter for upcoming events only
-  const upcomingEvents = myEvents.filter(e => new Date(e.startDate) >= new Date());
-  
+  const upcomingEvents = myEvents.filter(e => new Date(`${e.startDate}T${e.startTime || '00:00'}`) >= new Date());
+
+  // Filter for past events only
+  const pastEvents = myEvents.filter(e => new Date(`${e.startDate}T${e.startTime || '00:00'}`) < new Date());
+
   // Get featured events that are upcoming
-  const upcomingFeatured = featuredEvents.filter(e => new Date(e.startDate) >= new Date());
+  const upcomingFeatured = featuredEvents.filter(e => new Date(`${e.startDate}T${e.startTime || '00:00'}`) >= new Date());
+
+  // Get featured events that are past
+  const pastFeatured = featuredEvents.filter(e => new Date(`${e.startDate}T${e.startTime || '00:00'}`) < new Date());
 
   const handleLogout = async () => {
     try {
@@ -67,7 +73,7 @@ function Home({ events, currentUser, user, requireAuth }) {
   };
 
   // Check if there's any content to show
-  const hasContent = upcomingEvents.length > 0 || upcomingFeatured.length > 0;
+  const hasContent = upcomingEvents.length > 0 || upcomingFeatured.length > 0 || pastEvents.length > 0 || pastFeatured.length > 0;
 
   return (
     <div className="home-page">
@@ -167,6 +173,37 @@ function Home({ events, currentUser, user, requireAuth }) {
                     key={event.id} 
                     event={event} 
                     index={index + upcomingFeatured.length}
+                    onClick={() => navigate(`/event/${event.id}`)}
+                  />
+                ))}
+              </>
+            )}
+
+            {/* Past Events Section */}
+            {(pastEvents.length > 0 || pastFeatured.length > 0) && (
+              <>
+                <div className="section-label">
+                  <Calendar size={14} />
+                  <span>Past Events</span>
+                </div>
+
+                {/* Past Featured Events */}
+                {pastFeatured.map((event, index) => (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    index={index + upcomingEvents.length + upcomingFeatured.length}
+                    isFeatured={true}
+                    onClick={() => navigate(`/event/${event.id}`)}
+                  />
+                ))}
+
+                {/* Past User's Events */}
+                {pastEvents.map((event, index) => (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    index={index + upcomingEvents.length + upcomingFeatured.length + pastFeatured.length}
                     onClick={() => navigate(`/event/${event.id}`)}
                   />
                 ))}
